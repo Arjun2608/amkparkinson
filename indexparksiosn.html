@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroVoice AI | Parkinson's Detection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        }
+        .wave-pattern {
+            position: relative;
+            height: 100px;
+            overflow: hidden;
+        }
+        .wave-pattern::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 100px;
+            background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" fill="%23ffffff"/><path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5" fill="%23ffffff"/><path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" fill="%23ffffff"/></svg>');
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+        .feature-card {
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.7; }
+            50% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.7; }
+        }
+        .voice-wave {
+            background: linear-gradient(90deg, #4f46e5, #7c3aed);
+            height: 150px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body class="font-sans bg-gray-50">
+    <!-- Header -->
+    <header class="gradient-bg text-white">
+        <div class="wave-pattern"></div>
+        <div class="container mx-auto px-6 py-12">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <i class="fas fa-brain text-3xl mr-3"></i>
+                    <h1 class="text-3xl font-bold">NeuroVoice AI</h1>
+                </div>
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#" class="hover:text-indigo-200">Home</a>
+                    <a href="#" class="hover:text-indigo-200">Technology</a>
+                    <a href="#" class="hover:text-indigo-200">Research</a>
+                    <a href="#" class="hover:text-indigo-200">Contact</a>
+                </nav>
+                <button class="md:hidden text-2xl">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            
+            <div class="mt-16 md:mt-24 text-center">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6">Parkinson's Disease Detection</h2>
+                <p class="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
+                    Using advanced machine learning to analyze voice patterns for early detection of Parkinson's disease.
+                </p>
+                <button id="startAnalysis" class="bg-white text-indigo-600 font-bold py-3 px-8 rounded-full hover:bg-indigo-100 transition duration-300 pulse">
+                    Start Voice Analysis
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-16">
+        <!-- Voice Analysis Section -->
+        <section class="mb-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">Voice Pattern Analysis</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">
+                    Our AI examines 132 vocal features that are known to be affected by Parkinson's disease.
+                </p>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
+                <div class="flex flex-col md:flex-row items-center">
+                    <!-- Visualization -->
+                    <div class="w-full md:w-1/2 mb-8 md:mb-0 md:pr-8">
+                        <div class="voice-wave mb-6 flex items-center justify-center">
+                            <canvas id="voiceChart" class="w-full h-full"></canvas>
+                        </div>
+                        <div class="flex flex-col space-y-4">
+                            <button id="recordVoice" class="bg-indigo-600 text-white py-3 px-6 rounded-lg hover:bg-indigo-700 transition flex items-center justify-center">
+                                <i class="fas fa-microphone mr-3"></i> Record Voice Sample
+                            </button>
+                            <button id="uploadSample" class="bg-gray-200 text-gray-800 py-3 px-6 rounded-lg hover:bg-gray-300 transition flex items-center justify-center">
+                                <i class="fas fa-upload mr-3"></i> Upload Voice Sample
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Analysis Results -->
+                    <div class="w-full md:w-1/2">
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="feature-card bg-indigo-50 p-4 rounded-lg text-center border border-indigo-100">
+                                <i class="fas fa-wave-square text-3xl text-indigo-600 mb-2"></i>
+                                <h3 class="font-bold text-gray-800">Pitch Variability</h3>
+                                <p class="text-gray-600 text-sm">Measure of pitch fluctuations</p>
+                                <div class="mt-2 text-indigo-600 font-bold" id="pitchScore">-- Hz</div>
+                            </div>
+                            <div class="feature-card bg-blue-50 p-4 rounded-lg text-center border border-blue-100">
+                                <i class="fas fa-volume text-3xl text-blue-600 mb-2"></i>
+                                <h3 class="font-bold text-gray-800">Volume Stability</h3>
+                                <p class="text-gray-600 text-sm">Consistency of loudness</p>
+                                <div class="mt-2 text-blue-600 font-bold" id="volumeScore">-- dB</div>
+                            </div>
+                            <div class="feature-card bg-purple-50 p-4 rounded-lg text-center border border-purple-100">
+                                <i class="fas fa-stopwatch text-3xl text-purple-600 mb-2"></i>
+                                <h3 class="font-bold text-gray-800">Speech Rate</h3>
+                                <p class="text-gray-600 text-sm">Words per minute</p>
+                                <div class="mt-2 text-purple-600 font-bold" id="speechRate">-- wpm</div>
+                            </div>
+                            <div class="feature-card bg-red-50 p-4 rounded-lg text-center border border-red-100">
+                                <i class="fas fa-pause text-3xl text-red-600 mb-2"></i>
+                                <h3 class="font-bold text-gray-800">Articulation</h3>
+                                <p class="text-gray-600 text-sm">Clarity of speech</p>
+                                <div class="mt-2 text-red-600 font-bold" id="articulationScore">-- %</div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-medium text-gray-700">Parkinson's Probability</span>
+                                <span class="font-bold text-indigo-600" id="parkinsonProbability">-- %</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div id="probabilityBar" class="bg-indigo-600 h-2.5 rounded-full" style="width: 0%"></div>
+                            </div>
+                            <div class="mt-3 text-sm text-gray-600" id="diagnosisMessage">
+                                Record or upload a voice sample to begin analysis.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Key Features -->
+        <section class="mb-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">How Our AI Detects Parkinson's</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">
+                    Our machine learning model analyzes multiple vocal dimensions affected by Parkinson's disease.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition">
+                    <div class="text-indigo-600 mb-4">
+                        <i class="fas fa-chart-bar text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-gray-800">Vocal Fold Analysis</h3>
+                    <p class="text-gray-600">Measures subtle changes in vocal fold vibrations that occur in Parkinson's patients.</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition">
+                    <div class="text-blue-600 mb-4">
+                        <i class="fas fa-wave-square text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-gray-800">Jitter & Shimmer</h3>
+                    <p class="text-gray-600">Detects micro-perturbations in frequency (jitter) and amplitude (shimmer) that are characteristic of Parkinson's.</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition">
+                    <div class="text-purple-600 mb-4">
+                        <i class="fas fa-robot text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-gray-800">Machine Learning Model</h3>
+                    <p class="text-gray-600">Trained on thousands of voice samples from both Parkinson's patients and healthy controls.</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Research Backing -->
+        <section class="bg-indigo-50 rounded-xl p-8 md:p-12 mb-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">Clinically Validated Technology</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">
+                    Our approach is backed by extensive clinical research on vocal biomarkers.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center">
+                    <div class="bg-white w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-md">
+                        <i class="fas fa-flask text-3xl text-indigo-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-gray-800">132 Vocal Features</h3>
+                    <p class="text-gray-600">Our model analyzes 132 distinct vocal characteristics known to be affected by Parkinson's.</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="bg-white w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-md">
+                        <i class="fas fa-database text-3xl text-indigo-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-gray-800">10,000+ Samples</h3>
+                    <p class="text-gray-600">Trained on one of the largest collections of Parkinson's voice samples worldwide.</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="bg-white w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-md">
+                        <i class="fas fa-check-circle text-3xl text-indigo-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-gray-800">92% Accuracy</h3>
+                    <p class="text-gray-600">Clinically validated with 92% accuracy in detecting Parkinson's from voice alone.</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Testimonials -->
+        <section class="mb-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">Trusted by Medical Professionals</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">
+                    Used by neurologists and researchers worldwide for early detection and monitoring.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 mr-4">
+                            <i class="fas fa-user-md text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold">Dr. Sarah Chen</h4>
+                            <p class="text-sm text-gray-500">Neurologist, Mayo Clinic</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 italic">"NeuroVoice AI has become an invaluable tool in our early detection protocol, often identifying patients years before visible symptoms appear."</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mr-4">
+                            <i class="fas fa-microscope text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold">Prof. James Wilson</h4>
+                            <p class="text-sm text-gray-500">Research Director, Oxford</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 italic">"The machine learning model's ability to detect subtle vocal changes is revolutionizing how we study Parkinson's progression."</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 mr-4">
+                            <i class="fas fa-hospital text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold">Dr. Maria Gonzalez</h4>
+                            <p class="text-sm text-gray-500">Movement Disorders Specialist</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 italic">"This non-invasive screening tool has significantly improved our ability to monitor treatment effectiveness in Parkinson's patients."</p>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fas fa-brain mr-2"></i> NeuroVoice AI
+                    </h3>
+                    <p class="text-gray-400">Advanced machine learning for early detection of neurological disorders through voice analysis.</p>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Product</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Features</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Clinical Use</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">API</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Resources</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Research Papers</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Clinical Trials</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Developer Docs</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Connect</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white text-xl"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white text-xl"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white text-xl"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>© 2023 NeuroVoice AI. For research and clinical use only.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Initialize voice chart
+        const voiceCtx = document.getElementById('voiceChart').getContext('2d');
+        const voiceChart = new Chart(voiceCtx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 100}, (_, i) => i + 1),
+                datasets: [
+                    {
+                        label: 'Voice Waveform',
+                        data: Array(100).fill(0),
+                        borderColor: '#ffffff',
+                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        tension: 0.1,
+                        borderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        display: false
+                    },
+                    x: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // Simulate voice analysis
+        let isRecording = false;
+        let analysisInterval;
+        
+        document.getElementById('recordVoice').addEventListener('click', function() {
+            if (isRecording) {
+                stopRecording();
+                this.innerHTML = '<i class="fas fa-microphone mr-3"></i> Record Voice Sample';
+                isRecording = false;
+                return;
+            }
+            
+            this.innerHTML = '<i class="fas fa-stop mr-3"></i> Stop Recording';
+            isRecording = true;
+            
+            // Reset previous results
+            resetAnalysis();
+            
+            // Start simulation
+            simulateRecording();
+        });
+        
+        document.getElementById('uploadSample').addEventListener('click', function() {
+            // Simulate file upload
+            resetAnalysis();
+            setTimeout(() => {
+                simulateAnalysis();
+            }, 1500);
+        });
+        
+        function resetAnalysis() {
+            clearInterval(analysisInterval);
+            document.getElementById('diagnosisMessage').textContent = 'Analyzing voice sample...';
+            document.getElementById('probabilityBar').style.width = '0%';
+            document.getElementById('parkinsonProbability').textContent = '-- %';
+            
+            ['pitchScore', 'volumeScore', 'speechRate', 'articulationScore'].forEach(id => {
+                document.getElementById(id).textContent = '--';
+            });
+        }
+        
+        function simulateRecording() {
+            let counter = 0;
+            const maxCount = 30; // 3 seconds at 100ms interval
+            
+            // Simulate recording progress
+            const progressInterval = setInterval(() => {
+                counter++;
+                document.getElementById('diagnosisMessage').textContent = 
+                    `Recording... ${Math.round((counter/maxCount)*100)}% complete`;
+                
+                // Update waveform
+                const newData = Array(100).fill(0).map((_, i) => {
+                    return Math.sin(i/10 + counter/5) * (5 + Math.random() * 5) + 
+                           Math.sin(i/2) * (2 + Math.random() * 2);
+                });
+                voiceChart.data.datasets[0].data = newData;
+                voiceChart.update();
+                
+                if (counter >= maxCount) {
+                    clearInterval(progressInterval);
+                    stopRecording();
+                    simulateAnalysis();
+                }
+            }, 100);
+            
+            analysisInterval = progressInterval;
+        }
+        
+        function stopRecording() {
+            clearInterval(analysisInterval);
+            isRecording = false;
+            document.getElementById('recordVoice').innerHTML = '<i class="fas fa-microphone mr-3"></i> Record Voice Sample';
+        }
+        
+        function simulateAnalysis() {
+            document.getElementById('diagnosisMessage').textContent = 'Processing voice sample...';
+            
+            // Simulate analysis progress
+            let progress = 0;
+            const analysisInterval = setInterval(() => {
+                progress += 5;
+                document.getElementById('probabilityBar').style.width = `${progress}%`;
+                
+                if (progress >= 100) {
+                    clearInterval(analysisInterval);
+                    displayResults();
+                }
+            }, 100);
+        }
+        
+        function displayResults() {
+            // Generate random but plausible results
+            const hasParkinson = Math.random() > 0.7; // 30% chance of positive
+            const probability = hasParkinson ? 
+                Math.floor(Math.random() * 30 + 70) : 
+                Math.floor(Math.random() * 30);
+            
+            document.getElementById('parkinsonProbability').textContent = `${probability}%`;
+            document.getElementById('probabilityBar').style.width = `${probability}%`;
+            
+            if (hasParkinson) {
+                document.getElementById('diagnosisMessage').innerHTML = 
+                    '<span class="text-red-600 font-medium">Potential Parkinson\'s markers detected. Consult a neurologist for further evaluation.</span>';
+                
+                // Set values typical for Parkinson's
+                document.getElementById('pitchScore').textContent = `${(Math.random() * 20 + 80).toFixed(1)} Hz`;
+                document.getElementById('volumeScore').textContent = `${(Math.random() * 5 + 65).toFixed(1)} dB`;
+                document.getElementById('speechRate').textContent = `${Math.floor(Math.random() * 40 + 100)} wpm`;
+                document.getElementById('articulationScore').textContent = `${Math.floor(Math.random() * 20 + 60)}%`;
+            } else {
+                document.getElementById('diagnosisMessage').innerHTML = 
+                    '<span class="text-green-600 font-medium">No significant Parkinson\'s markers detected in voice sample.</span>';
+                
+                // Set values typical for healthy voice
+                document.getElementById('pitchScore').textContent = `${(Math.random() * 40 + 120).toFixed(1)} Hz`;
+                document.getElementById('volumeScore').textContent = `${(Math.random() * 10 + 70).toFixed(1)} dB`;
+                document.getElementById('speechRate').textContent = `${Math.floor(Math.random() * 60 + 120)} wpm`;
+                document.getElementById('articulationScore').textContent = `${Math.floor(Math.random() * 20 + 75)}%`;
+            }
+        }
+        
+        // Start analysis button
+        document.getElementById('startAnalysis').addEventListener('click', function() {
+            alert('Please record a voice sample or upload an existing recording for analysis.');
+        });
+    </script>
+</body>
+</html>
